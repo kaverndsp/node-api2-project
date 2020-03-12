@@ -7,7 +7,10 @@ const router = express.Router();
 // POSTS
 
 router.post('/', (req, res) => {
-    Posts.insert(req.body)
+  if(!req.body.title || !req.body.contents){
+    res.status(400).json({ errorMessage: "Please provide title and contents for the post." })
+  }else{
+  Posts.insert(req.body)
     .then(post => {
         res.status(201).json(post)
     })
@@ -16,11 +19,14 @@ router.post('/', (req, res) => {
             message: err,
         });
     });
-
+} 
 })
 
 router.post('/:id/comments', (req, res) => {
-    Posts.insertComment(req.body)
+    if(!req.body.text){
+      res.status(400).json({ errorMessage: "Please provide text for the comment." });
+    }else{
+  Posts.insertComment(req.body)
     .then(comment => {
         res.status(201).json(comment);
     })
@@ -29,6 +35,7 @@ router.post('/:id/comments', (req, res) => {
             message: err,
         })
     })
+  }
 })
 
 
@@ -57,6 +64,8 @@ router.get("/", (req, res) => {
         res.status(500).json({ message: err });
       });
   });
+  
+  
   
   router.get("/:id/comments", (req, res) => {
     Posts.findPostComments(req.params.id)
